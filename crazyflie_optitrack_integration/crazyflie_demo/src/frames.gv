@@ -1,0 +1,8 @@
+digraph G {
+"world" -> "crazy_mpc/base_link"[label=" Broadcaster: /play_1639957639167671259\nAverage rate: 120.193\nBuffer length: 5.0\nMost recent transform: 1639845757.807\nOldest transform: 1639845752.807\n"];
+"crazy_mpc/base_link" -> "crazyflie/base_link"[label=" Broadcaster: /play_1639957639167671259\nAverage rate: 10.189\nBuffer length: 4.907\nMost recent transform: 1639845757.843\nOldest transform: 1639845752.936\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1639957706.2450092"[ shape=plaintext ] ;
+}->"world";
+}
