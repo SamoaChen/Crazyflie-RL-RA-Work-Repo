@@ -1,0 +1,8 @@
+<launch>
+        <node
+                pkg="flow_field"
+                type="data_recording.py"
+                name="data_recording_node"
+                output="screen"
+        />
+</launch>
