@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="uri" default="radio://0/80/2M" />
-  <arg name="frame" default="crazy_hands" />
+  <arg name="frame" default="crazy_mpc" />
   <arg name="world_frame" default="world"/>
-  <arg name="joy_dev" default="/dev/input/js1" />
+  <arg name="joy_dev" default="/dev/input/js0" />
 
-  <!-- run vicon bridge -->
-  <include file="$(find mocap_vicon)/launch/vicon.launch"/>
+  <!-- run optitrack bridge -->
+  <include file="$(find mocap_optitrack)/launch/mocap.launch"/>
   
   <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">
   </include>
