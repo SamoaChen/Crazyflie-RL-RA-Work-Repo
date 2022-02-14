@@ -19,29 +19,31 @@ class Anemometer(object):
         self.tf_listener = TransformListener()
 
         # PUBLIC PARAMETERS
-        self.world_frame = 'world'
-        self.target_frame = 'crazyflie_test'
+        self.count = 0
+        self.world_frame = rospy.get_param("~world_frame", "world")
+        self.target_frame = rospy.get_param("~frame")
+        self.folder_path = rospy.get_param("~file_dir")
         self.record = False
         self.start_time = None
-        self.record_duration = 10
+        self.record_duration = 2
         self.write_data = None
-        self.folder_path = '/home/samoa/catkin_ws/src/flow_field/data/'
     
     def recordService(self, req):
         rospy.loginfo('Recording Started')
         self.record = True
 
-        #self.tf_listener.waitForTransform(self.world_frame, self.target_frame, rospy.Time(), rospy.Duration(10.0))
-        #(tf_pos, tf_quat) = self.tf_listener.lookupTransform(self.world_frame, self.target_frame, rospy.Time(0))
-        file_name = self.folder_path + 'level3_flow.txt'
+        self.tf_listener.waitForTransform(self.world_frame, self.target_frame, rospy.Time(), rospy.Duration(10.0))
+        (tf_pos, tf_quat) = self.tf_listener.lookupTransform(self.world_frame, self.target_frame, rospy.Time(0))
+        file_name = self.folder_path + 'measurement_' + str(self.count) + '.csv'
+        self.count += 1
         self.write_data = open(file_name, 'w+')
 
         # RECORD DATA
-        #x_str, y_str, z_str = str(tf_pos[0]), str(tf_pos[1]), str(tf_pos[2])
-        #pos_str = x_str + ',' + y_str + ',' + z_str + '\n'
+        x_str, y_str, z_str = str(tf_pos[0]), str(tf_pos[1]), str(tf_pos[2])
+        pos_str = x_str + ',' + y_str + ',' + z_str + '\n'
         time_str = str(time.time()) + '\n'
-        #self.write_data.write(pos_str + time_str) #debug
-        self.write_data.write(time_str)
+        self.write_data.write(pos_str + time_str)
+        #self.write_data.write(time_str)
         self.start_time = time.time()
         while ((time.time() - self.start_time) < self.record_duration):
             pass
