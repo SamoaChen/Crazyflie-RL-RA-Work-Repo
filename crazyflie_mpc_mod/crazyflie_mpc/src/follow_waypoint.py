@@ -27,7 +27,8 @@ class MPCDemo():
         # self.m_serviceTakeoff = rospy.Service('takeoff', , self.takeoffService)
         # frames and transforms
         self.worldFrame = rospy.get_param("~world_frame", "world")
-        quad_name = "crazy_mpc"
+        quad_name = "crazy_mpc/base_link"
+        quad_name_optitrack = "crazy_mpc"
         self.frame = quad_name
         #self.frame = rospy.get_param("~frame")
         self.tf_listener = TransformListener()
@@ -43,8 +44,8 @@ class MPCDemo():
         self.imu_sub = rospy.Subscriber('/crazyflie/imu', Imu, self.imu_callback)  # subscribing imu
         self.cmd_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)  # publishing to cmd_vel to control crazyflie
         self.goal_pub = rospy.Publisher('goal', TwistStamped, queue_size=1)  # publishing waypoints along the trajectory        
-        self.vicon_sub = rospy.Subscriber("/vicon/" + quad_name + "/pose", PoseStamped, self.vicon_callback) 
-        self.tf_pub = rospy.Publisher('tf_pos', PoseStamped, queue_size=1)
+        self.vicon_sub = rospy.Subscriber("/mocap_node/" + quad_name_optitrack + "/pose", PoseStamped, self.vicon_callback)
+        self.tf_pub = rospy.Publisher('tf_pos', PoseStamped, queue_size=1) 
         self.serviceTakeoff = rospy.Service('takeoff', Empty, self.takeoffService)
         self.serviceLand = rospy.Service('land', Empty, self.landingService)
 
@@ -53,22 +54,23 @@ class MPCDemo():
         self.m_thrust = 0
         self.m_startZ = 0
         
-        t_final = 12
-        radius = 0.5
+        t_final = 11
+        radius = 0.3
         t_plot = np.linspace(0, t_final, num=500)
         # center of the circle is 0.2172, 4.5455
-        x_traj = radius * np.cos(t_plot) + 0.2172
-        y_traj = radius * np.sin(t_plot) + 4.5455
+        x_traj = radius * np.cos(t_plot) + -0.311
+        y_traj = radius * np.sin(t_plot) + -1.511
   
-        z_traj = np.zeros((len(t_plot),)) + 0.4
-        #points = np.stack((x_traj, y_traj, z_traj), axis=1)
+        z_traj = np.zeros((len(t_plot),)) + 0.4111
+        points = np.stack((x_traj, y_traj, z_traj), axis=1)
+        #print(points)
         #print("points shape", points.shape)
         #points[-1, 2] = 0.2 #final landing height - > convert to a rosservice
         #print("final points shape", points.shape)
-        points = np.array([  # points for generating trajectory
-                           [-0.3, -1.5, 0.1],
-                           [-0.3, -1.5, 0.2],
-                           [-0.3, -1.5, 0.1]])
+        #points = np.array([  # points for generating trajectory
+        #                   [-0.3, -1.5, 0.1],
+        #                   [-0.3, -1.5, 0.2],
+        #                   [-0.3, -1.5, 0.1]])
         #points = np.array([[0.,-2.,0.],
         #                   [0.,-2.,0.4],
         #                   [0.,-2.,0.]])
@@ -214,7 +216,12 @@ class MPCDemo():
         self.traj_takeoff = self.traj_control(self.traj_takeoff)
         #rospy.loginfo(self.takeoff_z[2])
         #rospy.loginfo(self.prev_pos[2])
-        if self.prev_pos[2] >= self.takeoff_z[2]: # lowering the height temporarily
+        # listen for quad position
+        self.tf_listener.waitForTransform(self.worldFrame, self.frame, rospy.Time(), rospy.Duration(20.0))
+        t = self.tf_listener.getLatestCommonTime(self.frame, self.worldFrame)
+        (tf_pos, tf_quat) = self.tf_listener.lookupTransform(self.worldFrame, self.frame, t)  # position and quaternion in world frame
+        if self.prev_pos[2] >= tf_pos[2]: # lowering the height temporarily
+            print('automatic state reached')
             self.m_state = 1 # switch to automatic
             self.prev_time = rospy.get_time()
             self.t0 = rospy.get_time()
@@ -301,6 +308,13 @@ class MPCDemo():
         #self.m_state = 1
         self.prev_time = rospy.get_time()
         self.t0 = rospy.get_time()
+        #print(self.curr_pos)
+
+        # temporarily print out stuff for debugging
+        #self.tf_listener.waitForTransform(self.worldFrame, self.frame, rospy.Time(), rospy.Duration(20.0))
+        #t = self.tf_listener.getLatestCommonTime(self.frame, self.worldFrame)
+        #(tf_pos, tf_quat) = self.tf_listener.lookupTransform(self.worldFrame, self.frame, t)  # position and quaternion in world frame
+        #print(tf_pos[2])
 
     def takeoff0(self):
         imsg = Twist()
