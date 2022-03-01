@@ -121,6 +121,11 @@ ${catkin_LIBRARIES}
 target_link_libraries(tf_test
 ${catkin_LIBRARIES}
 )
+
+catkin_install_python(PROGRAMS scripts/publish_dynamic_pose_optitrack.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 #############
 ## Install ##
 #############

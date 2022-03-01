@@ -1,0 +1,11 @@
+
+<launch>
+
+    <node 
+    name="pose" 
+    pkg="crazyflie_demo" 
+    type="publish_dynamic_pose_optitrack.py" 
+    output="screen"
+    />
+
+</launch>

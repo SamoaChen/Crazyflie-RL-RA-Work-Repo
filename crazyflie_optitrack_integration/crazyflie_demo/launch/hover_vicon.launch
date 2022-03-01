@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="uri" default="radio://0/80/2M" />
-  <arg name="frame" default="/crazyflie_test" />
+  <arg name="frame" default="/crazy_mpc" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="x" default="-1.409" />
-  <arg name="y" default="2.826" />
-  <arg name="z" default="0.2" />
+  <arg name="x" default="-1.386" />
+  <arg name="y" default="2.8294" />
+  <arg name="z" default="0.5" />
+
 
   <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">
   </include>
@@ -30,7 +31,7 @@
       <arg name="frame" value="$(arg frame)" />
     </include>
 
-    <node name="pose" pkg="crazyflie_demo" type="publish_pose.py" output="screen">
+    <node name="pose" pkg="crazyflie_demo" type="publish_dynamic_pose_optitrack_copy.py" output="screen">
       <param name="name" value="goal" />
       <param name="rate" value="30" />
       <param name="x" value="$(arg x)" />
